@@ -36,3 +36,6 @@ npm-debug.log*
 *.patch
 *.diff
 
+# ASP.NET Core sensitive config — use appsettings.Example.json as a safe template
+appsettings.json
+appsettings.Development.json

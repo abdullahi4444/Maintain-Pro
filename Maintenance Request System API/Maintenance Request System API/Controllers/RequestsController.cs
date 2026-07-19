@@ -7,6 +7,9 @@ using System.Security.Claims;
 
 namespace Maintenance_Request_System_API.Controllers;
 
+/// <summary>
+/// Manages the lifecycle of maintenance requests (creation, retrieval, update, assignment).
+/// </summary>
 [Authorize]
 [Route("requests")]
 [ApiController]
@@ -19,7 +22,10 @@ public class RequestsController : ControllerBase
         _context = context;
     }
 
+    /// <summary>Creates a new maintenance request with an optional image.</summary>
+    /// <response code="201">Request successfully created.</response>
     [HttpPost]
+    [ProducesResponseType(typeof(MaintenanceRequest), 201)]
     public async Task<IActionResult> Create([FromForm] IFormCollection formData, IFormFile? image)
     {
         var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -79,7 +85,10 @@ public class RequestsController : ControllerBase
         return CreatedAtAction(nameof(GetOne), new { id = request.Id }, request);
     }
 
+    /// <summary>Retrieves paginated, filtered maintenance requests (Admin view).</summary>
+    /// <response code="200">Returns list of requests and pagination meta.</response>
     [HttpGet]
+    [ProducesResponseType(200)]
     public async Task<IActionResult> GetAll([FromQuery] int page = 1, [FromQuery] int limit = 10, [FromQuery] string? status = null, [FromQuery] string? search = null)
     {
         var query = _context.MaintenanceRequests
@@ -108,7 +117,10 @@ public class RequestsController : ControllerBase
         return Ok(new { data = requests, meta = new { total, page, limit } });
     }
 
+    /// <summary>Retrieves requests created by the currently authenticated user.</summary>
+    /// <response code="200">Returns the user's requests.</response>
     [HttpGet("my-requests")]
+    [ProducesResponseType(200)]
     public async Task<IActionResult> GetMyRequests([FromQuery] int page = 1, [FromQuery] int limit = 10)
     {
         var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -126,7 +138,9 @@ public class RequestsController : ControllerBase
         return Ok(new { data = requests, meta = new { total, page, limit } });
     }
 
+    /// <summary>Retrieves requests assigned to the currently authenticated technician.</summary>
     [HttpGet("assigned")]
+    [ProducesResponseType(200)]
     public async Task<IActionResult> GetAssignedRequests([FromQuery] int page = 1, [FromQuery] int limit = 10)
     {
         var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -144,7 +158,10 @@ public class RequestsController : ControllerBase
         return Ok(new { data = requests, meta = new { total, page, limit } });
     }
 
+    /// <summary>Retrieves a single request by its ID.</summary>
     [HttpGet("{id}")]
+    [ProducesResponseType(typeof(MaintenanceRequest), 200)]
+    [ProducesResponseType(404)]
     public async Task<IActionResult> GetOne(string id)
     {
         var request = await _context.MaintenanceRequests
@@ -156,7 +173,10 @@ public class RequestsController : ControllerBase
         return Ok(request);
     }
 
+    /// <summary>Partially updates a request (title, description, etc).</summary>
     [HttpPatch("{id}")]
+    [ProducesResponseType(typeof(MaintenanceRequest), 200)]
+    [ProducesResponseType(404)]
     public async Task<IActionResult> Update(string id, [FromBody] MaintenanceRequest data)
     {
         var request = await _context.MaintenanceRequests.FindAsync(id);
@@ -173,7 +193,10 @@ public class RequestsController : ControllerBase
         return Ok(request);
     }
 
+    /// <summary>Deletes a maintenance request.</summary>
     [HttpDelete("{id}")]
+    [ProducesResponseType(204)]
+    [ProducesResponseType(404)]
     public async Task<IActionResult> Delete(string id)
     {
         var request = await _context.MaintenanceRequests.FindAsync(id);
@@ -184,7 +207,10 @@ public class RequestsController : ControllerBase
         return NoContent();
     }
 
+    /// <summary>Assigns a technician to a maintenance request.</summary>
     [HttpPatch("{id}/assign")]
+    [ProducesResponseType(typeof(MaintenanceRequest), 200)]
+    [ProducesResponseType(404)]
     public async Task<IActionResult> Assign(string id, [FromBody] AssignDto data)
     {
         var request = await _context.MaintenanceRequests.FindAsync(id);
@@ -231,7 +257,10 @@ public class RequestsController : ControllerBase
         return Ok(request);
     }
 
+    /// <summary>Updates the status and repair notes for a request (optionally adding a completion image).</summary>
     [HttpPatch("{id}/status")]
+    [ProducesResponseType(typeof(MaintenanceRequest), 200)]
+    [ProducesResponseType(404)]
     public async Task<IActionResult> UpdateStatus(string id, [FromForm] IFormCollection formData, IFormFile? completionImage)
     {
         var request = await _context.MaintenanceRequests.FindAsync(id);
