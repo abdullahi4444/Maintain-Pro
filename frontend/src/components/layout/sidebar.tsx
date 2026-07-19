@@ -1,11 +1,12 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/app/store";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   Home,
   FileText,
   Users,
   Bell,
-  User,
+  User as UserIcon,
   LogOut,
   Wrench,
   ClipboardList,
@@ -25,8 +26,10 @@ export function Sidebar({ open, setOpen }: SidebarProps) {
   const user = useAuthStore((state) => state.user);
   const logout = useAuthStore((state) => state.logout);
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const handleLogout = () => {
+    queryClient.clear();
     logout();
     navigate("/login");
   };
@@ -59,7 +62,7 @@ export function Sidebar({ open, setOpen }: SidebarProps) {
       title: "Account",
       items: [
         { label: "Notifications", href: "/app/notifications", icon: Bell, roles: ["ADMIN", "TECHNICIAN", "REQUESTER"] },
-        { label: "Profile", href: "/app/profile", icon: User, roles: ["ADMIN", "TECHNICIAN", "REQUESTER"] },
+        { label: "Profile", href: "/app/profile", icon: UserIcon, roles: ["ADMIN", "TECHNICIAN", "REQUESTER"] },
       ],
     },
   ];

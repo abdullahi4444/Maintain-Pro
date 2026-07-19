@@ -19,15 +19,33 @@ public class DashboardController : ControllerBase
         _context = context;
     }
 
+    private IQueryable<MaintenanceRequest> GetBaseQuery()
+    {
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var role = User.FindFirst(ClaimTypes.Role)?.Value?.ToUpper();
+
+        var query = _context.MaintenanceRequests.AsQueryable();
+
+        // Admins see everything. Everyone else sees what they created or what is assigned to them.
+        if (role != "ADMIN" && !User.IsInRole("ADMIN"))
+        {
+            query = query.Where(r => r.RequesterId == userId || r.TechnicianId == userId);
+        }
+
+        return query;
+    }
+
     [HttpGet("stats")]
     public async Task<IActionResult> GetStats()
     {
-        var totalRequests = await _context.MaintenanceRequests.CountAsync();
-        var pendingRequests = await _context.MaintenanceRequests.CountAsync(r => r.Status == Status.PENDING);
-        var assignedRequests = await _context.MaintenanceRequests.CountAsync(r => r.Status == Status.ASSIGNED);
-        var inProgressRequests = await _context.MaintenanceRequests.CountAsync(r => r.Status == Status.IN_PROGRESS);
-        var completedRequests = await _context.MaintenanceRequests.CountAsync(r => r.Status == Status.COMPLETED);
-        var rejectedRequests = await _context.MaintenanceRequests.CountAsync(r => r.Status == Status.REJECTED);
+        var query = GetBaseQuery();
+        
+        var totalRequests = await query.CountAsync();
+        var pendingRequests = await query.CountAsync(r => r.Status == Status.PENDING);
+        var assignedRequests = await query.CountAsync(r => r.Status == Status.ASSIGNED);
+        var inProgressRequests = await query.CountAsync(r => r.Status == Status.IN_PROGRESS);
+        var completedRequests = await query.CountAsync(r => r.Status == Status.COMPLETED);
+        var rejectedRequests = await query.CountAsync(r => r.Status == Status.REJECTED);
         
         var totalUsers = await _context.Users.CountAsync();
         var totalTechnicians = await _context.Users.CountAsync(u => u.Role == Role.TECHNICIAN);
@@ -48,7 +66,7 @@ public class DashboardController : ControllerBase
     [HttpGet("recent-requests")]
     public async Task<IActionResult> GetRecentRequests([FromQuery] int limit = 5)
     {
-        var requests = await _context.MaintenanceRequests
+        var requests = await GetBaseQuery()
             .Include(r => r.Requester)
             .OrderByDescending(r => r.CreatedAt)
             .Take(limit)
@@ -61,7 +79,7 @@ public class DashboardController : ControllerBase
     {
         var targetYear = year ?? DateTime.UtcNow.Year;
         
-        var requests = await _context.MaintenanceRequests
+        var requests = await GetBaseQuery()
             .Where(r => r.CreatedAt.Year == targetYear)
             .GroupBy(r => r.CreatedAt.Month)
             .Select(g => new { month = g.Key, count = g.Count() })
@@ -79,7 +97,7 @@ public class DashboardController : ControllerBase
     [HttpGet("request-status")]
     public async Task<IActionResult> GetRequestStatus()
     {
-        var stats = await _context.MaintenanceRequests
+        var stats = await GetBaseQuery()
             .GroupBy(r => r.Status)
             .Select(g => new { status = g.Key.ToString(), count = g.Count() })
             .ToListAsync();
@@ -105,3 +123,4 @@ public class DashboardController : ControllerBase
         return Ok(performance);
     }
 }
+
