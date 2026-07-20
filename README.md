@@ -122,9 +122,6 @@ dotnet run
 }
 ```
 
-> API will be live at **http://localhost:5264**  
-> Swagger docs at **http://localhost:5264/swagger/index.html**
-
 ### Frontend Setup
 
 ```bash
@@ -137,10 +134,6 @@ npm install
 # 3. Start dev server
 npm run dev
 ```
-
-> App will be live at **http://localhost:5173**
-
----
 
 ## 📁 Project Structure
 
@@ -191,12 +184,11 @@ Maintenance Request System/
       <a href="https://github.com/abdullahi4444">
         <img src="https://avatars.githubusercontent.com/u/173564581?v=4" width="100" height="100" style="border-radius: 50%; border: 3px solid #6366f1;" alt="Abdullahi Abdiweli Adam"/>
         <br/>
-        <strong>Abdullahi Abdiweli Adam</strong>
+        <strong>Abdullahi Abdiweli</strong>
       </a>
       <br/>
-      <sub>Software Developer | UI/UX Designer</sub>
+      <sub>Software Developer</sub>
       <br/>
-      <sub>📍 Mogadishu, Somalia</sub>
       <br/>
       <a href="https://abdullahi4444.github.io/Abdullahi-Abdiweli-Adam-portfolio/">🌐 Portfolio</a>
     </td>
@@ -244,7 +236,6 @@ Maintenance Request System/
       <br/>
       <sub>Contributor</sub>
       <br/>
-      <sub>📍 Mogadishu, Somalia</sub>
       <br/>
       <a href="https://github.com/ipra12342">🐙 GitHub</a>
     </td>
