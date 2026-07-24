@@ -34,6 +34,9 @@ builder.Services.AddControllers()
 
 // Setup Entity Framework Core
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+if (string.IsNullOrEmpty(connectionString))
+    throw new Exception("Database connection string 'DefaultConnection' is missing in environment variables or appsettings.json");
+
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
 
