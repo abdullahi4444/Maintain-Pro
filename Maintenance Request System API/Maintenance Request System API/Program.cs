@@ -78,13 +78,15 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-// Restrict CORS to the React frontend origin only
-var frontendOrigin = builder.Configuration["AllowedOrigins:Frontend"] ?? "http://localhost:5173";
+// Restrict CORS to the React frontend origin(s)
+var frontendOrigins = (builder.Configuration["AllowedOrigins:Frontend"] ?? "http://localhost:5173")
+    .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins(frontendOrigin)
+        policy.WithOrigins(frontendOrigins)
               .AllowAnyHeader()
               .AllowAnyMethod();
     });
@@ -126,6 +128,12 @@ builder.Services.AddSwaggerGen(c =>
         }
     });
 });
+
+var port = Environment.GetEnvironmentVariable("PORT");
+if (!string.IsNullOrWhiteSpace(port))
+{
+    builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
+}
 
 var app = builder.Build();
 
@@ -179,6 +187,7 @@ app.UseCors("AllowFrontend");
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.MapGet("/health", () => Results.Ok(new { status = "ok" }));
 app.MapControllers();
 
 app.Run();

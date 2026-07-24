@@ -1,7 +1,8 @@
 import axios from "axios";
 import { useAuthStore } from "@/app/store";
 
-export const API_URL = "http://localhost:5264";
+const fallbackApiUrl = "http://localhost:5264";
+export const API_URL = (import.meta.env.VITE_API_URL || fallbackApiUrl).replace(/\/$/, "");
 
 const api = axios.create({
   baseURL: API_URL,
