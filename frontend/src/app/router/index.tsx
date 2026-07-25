@@ -2,21 +2,34 @@ import {
   createBrowserRouter,
   Navigate,
 } from "react-router-dom";
+import { lazy, Suspense } from "react";
 import { useAuthStore } from "@/app/store";
-import { LoginPage } from "@/team-modules/auth-users/pages/login";
-import { RegisterPage } from "@/team-modules/auth-users/pages/register";
-import { DashboardLayout } from "@/app/layouts/dashboard-layout";
-import { DashboardPage } from "@/team-modules/dashboard/pages/Dashboard";
-import { RequestsPage } from "@/team-modules/requests/pages";
-import { MyRequestsPage } from "@/team-modules/requests/pages/my-requests";
-import { AssignedRequestsPage } from "@/team-modules/requests/pages/assigned";
-import { RequestDetailPage } from "@/team-modules/requests/pages/detail";
-import { CreateRequestPage } from "@/team-modules/requests/pages/create";
-import { UsersPage } from "@/team-modules/auth-users/pages/Users";
-import { TechniciansPage } from "@/team-modules/technicians/pages/Technicians";
-import { ReportsPage } from "@/team-modules/notifications-reports/pages/Reports";
-import { NotificationsPage } from "@/team-modules/notifications-reports/pages/Notifications";
-import { ProfilePage } from "@/team-modules/auth-users/pages/Profile";
+
+// Lazy load all pages for better performance
+const LoginPage = lazy(() => import("@/team-modules/auth-users/pages/login").then(m => ({ default: m.LoginPage })));
+const RegisterPage = lazy(() => import("@/team-modules/auth-users/pages/register").then(m => ({ default: m.RegisterPage })));
+const DashboardLayout = lazy(() => import("@/app/layouts/dashboard-layout").then(m => ({ default: m.DashboardLayout })));
+const DashboardPage = lazy(() => import("@/team-modules/dashboard/pages/Dashboard").then(m => ({ default: m.DashboardPage })));
+const RequestsPage = lazy(() => import("@/team-modules/requests/pages").then(m => ({ default: m.RequestsPage })));
+const MyRequestsPage = lazy(() => import("@/team-modules/requests/pages/my-requests").then(m => ({ default: m.MyRequestsPage })));
+const AssignedRequestsPage = lazy(() => import("@/team-modules/requests/pages/assigned").then(m => ({ default: m.AssignedRequestsPage })));
+const RequestDetailPage = lazy(() => import("@/team-modules/requests/pages/detail").then(m => ({ default: m.RequestDetailPage })));
+const CreateRequestPage = lazy(() => import("@/team-modules/requests/pages/create").then(m => ({ default: m.CreateRequestPage })));
+const UsersPage = lazy(() => import("@/team-modules/auth-users/pages/Users").then(m => ({ default: m.UsersPage })));
+const TechniciansPage = lazy(() => import("@/team-modules/technicians/pages/Technicians").then(m => ({ default: m.TechniciansPage })));
+const ReportsPage = lazy(() => import("@/team-modules/notifications-reports/pages/Reports").then(m => ({ default: m.ReportsPage })));
+const NotificationsPage = lazy(() => import("@/team-modules/notifications-reports/pages/Notifications").then(m => ({ default: m.NotificationsPage })));
+const ProfilePage = lazy(() => import("@/team-modules/auth-users/pages/Profile").then(m => ({ default: m.ProfilePage })));
+const LandingPage = lazy(() => import("@/pages/landing").then(m => ({ default: m.LandingPage })));
+
+// Loading fallback component
+function LoadingSpinner() {
+  return (
+    <div className="flex items-center justify-center min-h-screen">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+    </div>
+  );
+}
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
@@ -34,18 +47,22 @@ function GuestRoute({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
-import { LandingPage } from "@/pages/landing";
-
 export const router = createBrowserRouter([
   {
     path: "/",
-    element: <LandingPage />,
+    element: (
+      <Suspense fallback={<LoadingSpinner />}>
+        <LandingPage />
+      </Suspense>
+    ),
   },
   {
     path: "/login",
     element: (
       <GuestRoute>
-        <LoginPage />
+        <Suspense fallback={<LoadingSpinner />}>
+          <LoginPage />
+        </Suspense>
       </GuestRoute>
     ),
   },
@@ -53,7 +70,9 @@ export const router = createBrowserRouter([
     path: "/register",
     element: (
       <GuestRoute>
-        <RegisterPage />
+        <Suspense fallback={<LoadingSpinner />}>
+          <RegisterPage />
+        </Suspense>
       </GuestRoute>
     ),
   },
@@ -61,7 +80,9 @@ export const router = createBrowserRouter([
     path: "/app",
     element: (
       <ProtectedRoute>
-        <DashboardLayout />
+        <Suspense fallback={<LoadingSpinner />}>
+          <DashboardLayout />
+        </Suspense>
       </ProtectedRoute>
     ),
     children: [
@@ -71,47 +92,91 @@ export const router = createBrowserRouter([
       },
       {
         path: "dashboard",
-        element: <DashboardPage />,
+        element: (
+          <Suspense fallback={<LoadingSpinner />}>
+            <DashboardPage />
+          </Suspense>
+        ),
       },
       {
         path: "requests",
-        element: <RequestsPage />,
+        element: (
+          <Suspense fallback={<LoadingSpinner />}>
+            <RequestsPage />
+          </Suspense>
+        ),
       },
       {
         path: "requests/my",
-        element: <MyRequestsPage />,
+        element: (
+          <Suspense fallback={<LoadingSpinner />}>
+            <MyRequestsPage />
+          </Suspense>
+        ),
       },
       {
         path: "requests/assigned",
-        element: <AssignedRequestsPage />,
+        element: (
+          <Suspense fallback={<LoadingSpinner />}>
+            <AssignedRequestsPage />
+          </Suspense>
+        ),
       },
       {
         path: "requests/create",
-        element: <CreateRequestPage />,
+        element: (
+          <Suspense fallback={<LoadingSpinner />}>
+            <CreateRequestPage />
+          </Suspense>
+        ),
       },
       {
         path: "requests/:id",
-        element: <RequestDetailPage />,
+        element: (
+          <Suspense fallback={<LoadingSpinner />}>
+            <RequestDetailPage />
+          </Suspense>
+        ),
       },
       {
         path: "users",
-        element: <UsersPage />,
+        element: (
+          <Suspense fallback={<LoadingSpinner />}>
+            <UsersPage />
+          </Suspense>
+        ),
       },
       {
         path: "technicians",
-        element: <TechniciansPage />,
+        element: (
+          <Suspense fallback={<LoadingSpinner />}>
+            <TechniciansPage />
+          </Suspense>
+        ),
       },
       {
         path: "reports",
-        element: <ReportsPage />,
+        element: (
+          <Suspense fallback={<LoadingSpinner />}>
+            <ReportsPage />
+          </Suspense>
+        ),
       },
       {
         path: "notifications",
-        element: <NotificationsPage />,
+        element: (
+          <Suspense fallback={<LoadingSpinner />}>
+            <NotificationsPage />
+          </Suspense>
+        ),
       },
       {
         path: "profile",
-        element: <ProfilePage />,
+        element: (
+          <Suspense fallback={<LoadingSpinner />}>
+            <ProfilePage />
+          </Suspense>
+        ),
       },
     ],
   },
